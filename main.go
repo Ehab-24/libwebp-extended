@@ -11,6 +11,9 @@ import (
 const MAX_WORKERS = 20
 
 func main() {
+
+	log.SetFlags(0)
+
 	if len(os.Args) != 3 {
 		log.Fatalf("expected %d arguments, found %d", 3, len(os.Args))
 	}
