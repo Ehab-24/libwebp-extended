@@ -5,10 +5,15 @@ import (
 	"os"
 	"os/exec"
 	"strings"
+	"sync"
 )
+
+// TODO: use concurrency
 
 // args1 -> path to source dir
 // args2 -> path to out dir
+
+const MAX_WORKERS = 20
 
 func main() {
 	if len(os.Args) != 3 {
@@ -19,6 +24,9 @@ func main() {
 	outDir := os.Args[2]
 
 	filenames := listFiles(srcDir)
+	var wg sync.WaitGroup
+	guard := make(chan int, MAX_WORKERS)
+	defer close(guard)
 
 	for _, fn := range filenames {
 		if !isImageName(fn) {
@@ -27,9 +35,17 @@ func main() {
 
 		srcFile := srcDir + "/" + fn
 		outFile := outDir + "/" + fn[0:strings.LastIndex(fn, ".")] + ".webp"
-		execCWebp("60", srcFile, outFile)
+
+		guard <- 1
+		wg.Add(1)
+		go func() {
+			execCWebp("60", srcFile, outFile)
+			<-guard
+			wg.Done()
+		}()
 	}
 
+	wg.Wait()
 }
 
 func check(err error) {
