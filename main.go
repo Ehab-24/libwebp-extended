@@ -8,11 +8,6 @@ import (
 	"sync"
 )
 
-// TODO: use concurrency
-
-// args1 -> path to source dir
-// args2 -> path to out dir
-
 const MAX_WORKERS = 20
 
 func main() {
